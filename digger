@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# path for the alert sounds
+ALERT_PATH="/usr/share/sounds/gnome/default/alerts/bark.ogg"
+ALERT_PATH2="/usr/share/sounds/gnome/default/alerts/glass.ogg"
+
+# default media player
+PLAYER="paplay"
+
+# default volume for alert
+VOLUME=65000
+
+# default waiting time between digs
+WAIT=50
+
+# you may want to use those
+# [ $(which mplayer) ] && PLAYER=$(which mplayer)
+# [ $(which paplay) ] && PLAYER=$(which paplay)
+
+echo "result   `dig $1 | grep "ANSWER SECTION" -C 1 | grep $1 | cut -d\A -f2 | tr -d '[[:space:]]'`"
+echo "expected $2"
+while [ true ]
+do
+	dig_result=`dig $1 | grep "ANSWER SECTION" -C 1 | grep $1 | cut -d\A -f2 | tr -d '[[:space:]]'`
+	echo "result   $dig_result"
+
+	if [ "$dig_result" = "$2" ]; then
+		for count in 1 2 3
+		do
+			$PLAYER $ALERT_PATH --volume=$VOLUME
+		done
+
+		exit 0
+	# else
+	# 	$PLAYER $ALERT_PATH2 --volume=$VOLUME
+	fi
+	sleep $WAIT
+done
